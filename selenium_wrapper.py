@@ -21,7 +21,10 @@ class SeleniumWrapper:
         # The options is just to shut up some warnings
         options = webdriver.ChromeOptions()
         options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        self.driver = webdriver.Chrome(options=options)
+        try:
+            self.driver = webdriver.Chrome(options=options)
+        except:
+            raise AssertionError("Chrome driver not found, please check install it.")
         self.set_url(url)
         self.wait = WebDriverWait(self.driver, 20)
         
@@ -168,8 +171,19 @@ def go_to_date(parserFromTdToDays, day):
     return True
 
 if __name__ == "__main__":
-    file = open("config.json")
-    config = json.load(file)
+    try:
+        file = open("config.json")
+        config = json.load(file)
+    except:
+        print("Config file not found, proceed to create one.")
+        config = {}
+        config["username"] = str(input("Username: "))
+        config["password"] = str(input("password: "))
+        config["project"] = str(input("project: "))
+        config["pca"] = str(input("pca: "))
+        with open("config.json", "w") as fp:
+            json.dump(config, fp)
+
     seleniumWrapper = SeleniumWrapper()
     seleniumWrapper.set_text_by_id(id="txtWorkerId", text=config["username"])
     seleniumWrapper.set_text_by_id(id="TxtPassword", text=config["password"], enter=True)
